@@ -50,3 +50,20 @@ func lowestSetBit(n uint32) uint {
 	}
 	return uint(ctz32DeBruijn[(n&-n)*0x077CB531>>(32-5)])
 }
+
+func fourccToUint32(s string) uint32 {
+	r := []rune(s)
+	return uint32(r[0] +
+		(r[1] << 8) +
+		(r[2] << 16) +
+		(r[3] << 24))
+}
+
+func fourccToString(v uint32) string {
+	return string([]byte{
+		byte(v),
+		byte(v >> 8),
+		byte(v >> 16),
+		byte(v >> 24),
+	})
+}

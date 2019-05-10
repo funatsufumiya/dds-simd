@@ -52,9 +52,9 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 	hasLuminance := (pf.flags&pfLuminance == pfLuminance)
 	switch {
 	case hasRGB && pf.rgbBitCount == 32:
-		c.ColorModel = color.RGBAModel
+		c.ColorModel = color.NRGBAModel
 	case hasRGB && pf.rgbBitCount == 64:
-		c.ColorModel = color.RGBA64Model
+		c.ColorModel = color.NRGBA64Model
 	case hasYUV && pf.rgbBitCount == 24:
 		c.ColorModel = color.YCbCrModel
 	case hasLuminance && pf.rgbBitCount == 8:
@@ -72,64 +72,21 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 	return c, nil
 }
 
-type img struct {
-	h   header
-	buf []byte
-
-	rBit, gBit, bBit, aBit uint
-
-	stride, pitch int
-}
-
-func (i *img) ColorModel() color.Model {
-	return color.NRGBAModel
-}
-
-func (i *img) Bounds() image.Rectangle {
-	return image.Rect(0, 0, int(i.h.width), int(i.h.height))
-}
-
-func (i *img) At(x, y int) color.Color {
-	arrPsn := i.pitch*y + i.stride*x
-	d := readBits(i.buf[arrPsn:], i.h.pixelFormat.rgbBitCount)
-	r := uint8((d & i.h.pixelFormat.rBitMask) >> i.rBit)
-	g := uint8((d & i.h.pixelFormat.gBitMask) >> i.gBit)
-	b := uint8((d & i.h.pixelFormat.bBitMask) >> i.bBit)
-	a := uint8((d & i.h.pixelFormat.aBitMask) >> i.aBit)
-	return color.NRGBA{r, g, b, a}
-}
-
 func Decode(r io.Reader) (image.Image, error) {
 	h, err := readHeader(r)
 	if err != nil {
 		return nil, err
 	}
 
-	if h.pixelFormat.flags&pfFourCC == pfFourCC {
-		return nil, fmt.Errorf("image data is compressed with %v; compression is unsupported", h.pixelFormat.fourCC)
+	switch fourccToString(h.pixelFormat.fourCC) {
+	case "\x00\x00\x00\x00":
+		if h.pixelFormat.flags != pfAlphaPixels|pfRGB && h.pixelFormat.flags != pfRGB {
+			return nil, fmt.Errorf("unsupported pixel format %x", h.pixelFormat.flags)
+		}
+		return decodeRGBA(r, h)
+	case "DXT1":
+		return decodeDXT1(r, h)
+	default:
+		return nil, fmt.Errorf("image data is compressed with %v; this compression is unsupported", fourccToString(h.pixelFormat.fourCC))
 	}
-
-	if h.pixelFormat.flags != pfAlphaPixels|pfRGB {
-		return nil, fmt.Errorf("unsupported pixel format %x", h.pixelFormat.flags)
-	}
-
-	pitch := (h.width*h.pixelFormat.rgbBitCount + 7) / 8
-	buf := make([]byte, pitch*h.height)
-	if _, err := io.ReadFull(r, buf); err != nil {
-		return nil, fmt.Errorf("reading image: %v", err)
-	}
-	stride := h.pixelFormat.rgbBitCount / 8
-
-	return &img{
-		h:   h,
-		buf: buf,
-
-		pitch:  int(pitch),
-		stride: int(stride),
-
-		rBit: lowestSetBit(h.pixelFormat.rBitMask),
-		gBit: lowestSetBit(h.pixelFormat.gBitMask),
-		bBit: lowestSetBit(h.pixelFormat.bBitMask),
-		aBit: lowestSetBit(h.pixelFormat.aBitMask),
-	}, nil
 }
