@@ -86,6 +86,10 @@ func Decode(r io.Reader) (image.Image, error) {
 		return decodeRGBA(r, h)
 	case "DXT1":
 		return decodeDXT1(r, h)
+	case "DXT3":
+		return decodeDXT3(r, h)
+	case "DXT5":
+		return decodeDXT5(r, h)
 	default:
 		return nil, fmt.Errorf("image data is compressed with %v; this compression is unsupported", fourccToString(h.pixelFormat.fourCC))
 	}
