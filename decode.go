@@ -54,6 +54,11 @@ func decodeRGBA(r io.Reader, header header) (image.Image, error) {
 func decodeDXT1(r io.Reader, header header) (image.Image, error) {
 	width := int(header.width)
 	height := int(header.height)
+	err := checkDivisibilityBy4(width, height)
+	if err != nil {
+		return nil, err
+	}
+
 	width4 := (width / 4) | 0
 	height4 := (height / 4) | 0
 	offset := 0
@@ -95,6 +100,11 @@ func decodeDXT1(r io.Reader, header header) (image.Image, error) {
 func decodeDXT3(r io.Reader, header header) (image.Image, error) {
 	width := int(header.width)
 	height := int(header.height)
+	err := checkDivisibilityBy4(width, height)
+	if err != nil {
+		return nil, err
+	}
+
 	width4 := (width / 4) | 0
 	height4 := (height / 4) | 0
 	offset := 0
@@ -142,6 +152,11 @@ func decodeDXT3(r io.Reader, header header) (image.Image, error) {
 func decodeDXT5(r io.Reader, header header) (image.Image, error) {
 	width := int(header.width)
 	height := int(header.height)
+	err := checkDivisibilityBy4(width, height)
+	if err != nil {
+		return nil, err
+	}
+
 	width4 := (width / 4) | 0
 	height4 := (height / 4) | 0
 	offset := 0
@@ -307,4 +322,11 @@ func extractBitsFromUin16Array(array []uint16, shift, length int) uint8 {
 	}
 
 	return result
+}
+
+func checkDivisibilityBy4(w, h int) error {
+	if w%4 != 0 || h%4 != 0 {
+		return fmt.Errorf("DXT compressed image width and height must be multiple of four: %vx%v", w, h)
+	}
+	return nil
 }
