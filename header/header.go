@@ -6,6 +6,7 @@ type (
 		DDSHeader
 		DDPFHeader
 		CapsHeader
+		DX10Header
 		FourCCString string // the string representation of the DDPFHeader.FourCC
 	}
 
@@ -32,10 +33,19 @@ type (
 
 	// CapsHeader wraps the cube-map specific flag set
 	CapsHeader struct {
-		Caps1 DDSCf  // Specifies the complexity of the surfaces stored
-		Caps2 uint32 // Additional detail about the surfaces stored
-		Caps3 uint32 // unused
-		Caps4 uint32 // unused
+		Caps1 Flags[DDSCf] // Specifies the complexity of the surfaces stored
+		Caps2 uint32       // Additional detail about the surfaces stored
+		Caps3 uint32       // unused
+		Caps4 uint32       // unused
+	}
+
+	// DX10Header is an extension fo the default header in case the FourCC is set to "DX10"
+	DX10Header struct {
+		DxgiFormat        uint32        // the pixel format as gigantic enum. replaces the DDPFHeader definitions
+		ResourceDimension Flags[DDSDTc] // dimension of the texture: 1D, 2D or 3D
+		MiscFlag          uint32        // more obscure settings regarding cube maps
+		ArraySize         uint32        // the number of elements in the array (amount of textures inside)
+		MiscFlags2        uint32        // bits regarding more precise description of alpha values
 	}
 
 	// Flags is a convenience type for flag-bit checking operations

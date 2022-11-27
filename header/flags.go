@@ -24,8 +24,6 @@ const (
 	DDSDHeaderFlagsLinearSize DDSf = DDSDLinearSize
 )
 
-//
-
 // DDPFf is the flag type for the DDPFHeader.PixelFlags
 type DDPFf uint32
 
@@ -39,14 +37,22 @@ const (
 	DDPFLuminance   DDPFf = 0x20000 // texture contains a single channel uncompressed data
 )
 
-//
-
 // DDSCf is the flag type for CapsHeader.Caps1
 type DDSCf uint32
 
-// flags for the first dword of the CapsHeader
+// flags for the first dword of the CapsHeader.Caps1
 const (
 	DDSCAPSComplex DDSCf = 0x8
 	DDSCAPSMipmap  DDSCf = 0x400000
 	DDSCAPSTexture DDSCf = 0x1000
+)
+
+// DDSDTc is the dimension flag for a DC10 texture
+type DDSDTc uint32
+
+// constants for the dimensions of a DX10 texture
+const (
+	DDSDT1D DDSDTc = iota + 2 // 1D texture
+	DDSDT2D                   // 2D texture
+	DDSDT3D                   // 3D texture
 )

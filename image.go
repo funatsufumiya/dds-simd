@@ -32,7 +32,6 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 
 	switch pf, s := h.PixelFlags, h.RgbBitCount; {
 	case pf.Is(header.DDPFFourCC):
-		fmt.Println(h.FourCC, h.FourCCString)
 		c.ColorModel = color.NRGBAModel
 	case pf.Has(header.DDPFRGB): // because alpha is implicit
 		if s <= 32 {

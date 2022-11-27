@@ -45,7 +45,7 @@ func TestDeserializer_Read(t *testing.T) {
 			ABitMask:    26,
 		},
 		CapsHeader: CapsHeader{
-			Caps1: 27,
+			Caps1: Flags[DDSCf]{27},
 			Caps2: 28,
 			Caps3: 29,
 			Caps4: 30,
