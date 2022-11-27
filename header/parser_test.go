@@ -2,9 +2,16 @@ package header
 
 import (
 	"bytes"
+	"encoding/binary"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+func TestNew(t *testing.T) {
+	ds := New()
+	assert.NotNil(t, ds)
+	assert.EqualValues(t, sizeDDTF, binary.Size(Deserializer{}))
+}
 
 func TestDeserializer_Read(t *testing.T) {
 	var data = [132]byte{'D', 'D', 'S', ' '}

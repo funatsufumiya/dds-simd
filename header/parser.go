@@ -7,12 +7,11 @@ import (
 	"io"
 )
 
-// init checks the integrity of the dds header and
-func init() {
-	if binary.Size(Deserializer{}) != _DDTFHeaderSize {
-		panic("dds header definition of wrong size")
-	}
-}
+const (
+	sizeDDTF = 128 // Size of the whole texture file header. is 128
+	sizeDDSD = 124 // Size of the serialized DDSHeader. is 124
+	sizeDDPF = 32  // Size of the serialized DDPFHeader. is 32
+)
 
 // Deserializer is used to parse all header bytes into a structure
 type Deserializer struct {
@@ -22,7 +21,7 @@ type Deserializer struct {
 	_               [11]uint32 // reserved1
 	PixelFormatSize uint32     // pixel format size. must be 32
 	DDPFHeader                 // the pixel format header
-	CapsHeader                 // header for cube-maps
+	CapsHeader                 // header for more complex textures with mipmaps or cube-maps
 	_               [1]uint32  // reserved2
 }
 
@@ -31,20 +30,20 @@ func New() *Deserializer {
 	return new(Deserializer)
 }
 
-// Read tries to take _DDTFHeaderSize Bytes from the reader and then calls Deserializer.Parse with it.
+// Read tries to take size_DDTF Bytes from the reader and then calls Deserializer.Parse with it.
 func (d *Deserializer) Read(r io.Reader) (*Header, error) {
-	buf := make([]byte, _DDTFHeaderSize, _DDTFHeaderSize)
+	buf := make([]byte, sizeDDTF, sizeDDTF)
 	if n, err := r.Read(buf); err != nil {
 		return nil, err
-	} else if n != _DDTFHeaderSize {
-		return nil, fmt.Errorf("bytes in header. expected %d, only got : %d", _DDTFHeaderSize, n)
+	} else if n != sizeDDTF {
+		return nil, fmt.Errorf("bytes in header. expected %d, only got : %d", sizeDDTF, n)
 	}
-	return d.Parse(*(*[_DDTFHeaderSize]byte)(buf))
+	return d.Parse(*(*[sizeDDTF]byte)(buf))
 }
 
-// Parse takes _DDTFHeaderSize Bytes and tries to create a Header from it. Calls verification on a successful
+// Parse takes size_DDTF Bytes and tries to create a Header from it. Calls verification on a successful
 // parsed Header, which might return an error in the case of a wrongly configured header.
-func (d *Deserializer) Parse(in [_DDTFHeaderSize]byte) (h *Header, err error) {
+func (d *Deserializer) Parse(in [sizeDDTF]byte) (h *Header, err error) {
 	if err = binary.Read(bytes.NewReader(in[:]), binary.LittleEndian, d); err == nil {
 		err = d.verify()
 		h = &Header{
@@ -62,11 +61,11 @@ func (d *Deserializer) verify() error {
 	if mn := d.toString(d.MagicNumber); mn != "DDS " {
 		return fmt.Errorf("magic is incorrect, expected \"DDS \", got %v", mn)
 	}
-	if d.HeaderSize != _DDSDHeaderSize {
-		return fmt.Errorf("DDS_HEADER reports wrong size, expected %d, got %d", _DDSDHeaderSize, d.HeaderSize)
+	if d.HeaderSize != sizeDDSD {
+		return fmt.Errorf("DDS_HEADER reports wrong size, expected %d, got %d", sizeDDSD, d.HeaderSize)
 	}
-	if d.PixelFormatSize != _DDPFHeaderSize {
-		return fmt.Errorf("DDS_PIXEL_FORMAT reports wrong size, expected %d, got %d", _DDPFHeaderSize, d.PixelFormatSize)
+	if d.PixelFormatSize != sizeDDPF {
+		return fmt.Errorf("DDS_PIXEL_FORMAT reports wrong size, expected %d, got %d", sizeDDPF, d.PixelFormatSize)
 	}
 
 	// check that it's actually a texture per requirements

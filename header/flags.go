@@ -1,14 +1,5 @@
 package header
 
-// some size definitions for the header
-const (
-	_DDTFHeaderSize = 128 // Size of the whole texture file header. is 128
-	_DDSDHeaderSize = 124 // Size of the serialized DDSHeader. is 124
-	_DDPFHeaderSize = 32  // Size of the serialized DDPFHeader. is 32
-)
-
-//
-
 // DDSf is the flag type for the DDSHeader.TextureFlags
 type DDSf uint32
 
