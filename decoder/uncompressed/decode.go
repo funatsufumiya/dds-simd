@@ -1,4 +1,4 @@
-package rgba
+package uncompressed
 
 import (
 	"dds/header"
@@ -7,7 +7,7 @@ import (
 )
 
 type Decoder struct {
-	flags  uint32
+	flags  header.Flags[header.DDPFf]
 	bounds image.Point
 }
 
@@ -24,8 +24,8 @@ func (d *Decoder) Decode(r io.Reader) (image.Image, error) {
 		return rgba, nil
 	}
 
-	switch d.flags {
-	case header.AlphaPixels | header.RGB:
+	switch header.DDPFf(d.flags.F) {
+	case header.DDPFAlphaPixels | header.DDPFRGB:
 		for y := 0; y < d.bounds.Y; y++ {
 			p := rgba.Pix[y*rgba.Stride : y*rgba.Stride+d.bounds.X*4]
 			if _, err := io.ReadFull(r, p); err != nil {
@@ -36,7 +36,7 @@ func (d *Decoder) Decode(r io.Reader) (image.Image, error) {
 				p[i+0], p[i+2] = p[i+2], p[i+0]
 			}
 		}
-	case header.RGB:
+	case header.DDPFRGB:
 		b := make([]byte, 3*d.bounds.X)
 		for y := 0; y < d.bounds.Y; y++ {
 			if _, err := io.ReadFull(r, b); err != nil {

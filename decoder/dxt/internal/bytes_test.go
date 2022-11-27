@@ -57,7 +57,7 @@ func TestExtract(t *testing.T) {
 
 		for i := byte(0); i < 16; i++ {
 			t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-				assert.Equal(t, out4[i], Extract(in, i, 4))
+				assert.Equal(t, out4[i], ExtractIndex(in, i, 4))
 			})
 		}
 	})
@@ -89,7 +89,7 @@ func TestExtract(t *testing.T) {
 
 		for i := byte(0); i < 21; i++ {
 			t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-				assert.Equal(t, out3[i], Extract(in, i, 3))
+				assert.Equal(t, out3[i], ExtractIndex(in, i, 3))
 			})
 		}
 	})
@@ -110,7 +110,7 @@ func TestExtract(t *testing.T) {
 
 		for i := byte(0); i < 10; i++ {
 			t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-				assert.Equal(t, out6[i], Extract(in, i, 6))
+				assert.Equal(t, out6[i], ExtractIndex(in, i, 6))
 			})
 		}
 	})

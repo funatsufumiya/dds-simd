@@ -21,7 +21,7 @@ func (cd *ColorDecoder) BlockColor(colorsBlock []byte) {
 }
 
 func (cd *ColorDecoder) PixelColor(pixelIndex byte) color.NRGBA {
-	colorIndex := Extract(cd.indices, pixelIndex, 2)
+	colorIndex := ExtractIndex(cd.indices, pixelIndex, 2)
 	return cd.colors[colorIndex]
 }
 

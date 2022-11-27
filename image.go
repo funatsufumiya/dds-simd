@@ -4,6 +4,7 @@ package dds
 import (
 	"dds/decoder"
 	"dds/header"
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -15,8 +16,10 @@ func init() {
 	image.RegisterFormat("dds", "DDS ", Decode, DecodeConfig)
 }
 
+var ErrUnsupported = errors.New("unsupported texture format")
+
 func DecodeConfig(r io.Reader) (image.Config, error) {
-	h, err := header.New(r)
+	h, err := header.New().Read(r)
 	if err != nil {
 		return image.Config{}, err
 	}
@@ -27,36 +30,41 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 		Height: int(h.Height),
 	}
 
-	pf := h.PixelFlags
-	hasAlpha := (pf&header.AlphaPixels == header.AlphaPixels) || (pf&header.Alpha == header.Alpha)
-	hasRGB := (pf&header.FourCC == header.FourCC) || (pf&header.RGB == header.RGB)
-	hasYUV := pf&header.YUV == header.YUV
-	hasLuminance := pf&header.Luminance == header.Luminance
-
-	switch {
-	case hasLuminance && h.RgbBitCount == 8:
-		c.ColorModel = color.GrayModel
-	case hasAlpha && h.RgbBitCount == 8:
-		c.ColorModel = color.AlphaModel
-	case hasLuminance && h.RgbBitCount == 16:
-		c.ColorModel = color.Gray16Model
-	case hasAlpha && h.RgbBitCount == 16:
-		c.ColorModel = color.AlphaModel
-	case hasYUV && h.RgbBitCount == 24:
-		c.ColorModel = color.YCbCrModel
-	case hasRGB && h.RgbBitCount == 32:
+	switch pf, s := h.PixelFlags, h.RgbBitCount; {
+	case pf.Is(header.DDPFFourCC):
+		fmt.Println(h.FourCC, h.FourCCString)
 		c.ColorModel = color.NRGBAModel
-	case hasRGB && h.RgbBitCount == 64:
-		c.ColorModel = color.NRGBA64Model
+	case pf.Has(header.DDPFRGB): // because alpha is implicit
+		if s <= 32 {
+			c.ColorModel = color.NRGBAModel
+		} else {
+			c.ColorModel = color.NRGBA64Model
+		}
+	case pf.Is(header.DDPFYUV):
+		c.ColorModel = color.NYCbCrAModel
+	case pf.Is(header.DDPFLuminance):
+		if s <= 8 {
+			c.ColorModel = color.GrayModel
+		} else {
+			c.ColorModel = color.Gray16Model
+		}
+	case pf.Is(header.DDPFAlpha):
+		if s <= 8 {
+			c.ColorModel = color.AlphaModel
+		} else {
+			c.ColorModel = color.Alpha16Model
+		}
+	case pf.Is(header.DDPFLuminance | header.DDPFAlphaPixels):
+		err = ErrUnsupported
 	default:
-		return image.Config{}, fmt.Errorf("unrecognized image format: hasAlpha: %v, hasRGB: %v, hasYUV: %v, hasLuminance: %v, pf.flags: %x", hasAlpha, hasRGB, hasYUV, hasLuminance, pf)
+		err = fmt.Errorf("unrecognized image format: pf.flags: %x", pf)
 	}
 
-	return c, nil
+	return c, err
 }
 
 func Decode(r io.Reader) (image.Image, error) {
-	h, err := header.New(r)
+	h, err := header.New().Read(r)
 	if err != nil {
 		return nil, err
 	}

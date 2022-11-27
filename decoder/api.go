@@ -2,7 +2,7 @@ package decoder
 
 import (
 	"dds/decoder/dxt"
-	"dds/decoder/rgba"
+	"dds/decoder/uncompressed"
 	"dds/header"
 	"fmt"
 	"image"
@@ -17,19 +17,26 @@ type Decoder interface {
 
 // Find takes a parsed header.Header and tries to find a fitting Decoder or returns an error.
 func Find(h *header.Header) (d Decoder, err error) {
-	switch cc := h.FourCCString(); cc {
-	case "":
-		if h.PixelFlags != header.AlphaPixels|header.RGB && h.PixelFlags != header.RGB {
-			err = fmt.Errorf("unsupported pixel format %x", h.PixelFlags)
-		} else {
-			d = rgba.New(h)
+	if h.PixelFlags.Is(header.DDPFFourCC) {
+		switch h.FourCC {
+		case 0:
+			if !h.PixelFlags.Has(header.DDPFRGB) {
+				err = fmt.Errorf("unsupported pixel format %x", h.PixelFlags)
+			} else {
+				d = uncompressed.New(h)
+			}
+
+		default:
+			switch h.FourCCString {
+			case "DXT1", "DXT2", "DXT3", "DXT4", "DXT5":
+				d, err = dxt.New(h.FourCCString, int(h.Width), int(h.Height))
+
+			default:
+				err = fmt.Errorf("texture with compression '%v' is unsupported", h.FourCC)
+			}
 		}
-
-	case "DXT1", "DXT2", "DXT3", "DXT4", "DXT5":
-		d, err = dxt.New(cc, int(h.Width), int(h.Height))
-
-	default:
-		err = fmt.Errorf("texture with compression '%v' is unsupported", cc)
+	} else {
+		err = fmt.Errorf("texture without compression '%v' is unsupported", h.PixelFlags)
 	}
 
 	return

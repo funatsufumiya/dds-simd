@@ -2,22 +2,27 @@ package internal
 
 import "math"
 
-// Extract some bits form a byte array, being able to go across byte boundaries. The slice is interpreted
+// ExtractIndex returns some bits form a byte array, being able to go across byte boundaries. The slice is interpreted
 // in ascending order. The length is interpreted as slicing the slice into fixed length items and the
 // zero-based index refers to the item of index n.
 //
 // The maximum length allowed is 7. As 8 bit would be simply accessing the byte slice and more than 8 byte
 // is not supported.
 //
-// It needs to be verified before that (index+1)*length <= len(bytes) either by convention or by testing.
-//
-// Example: bytes: [ 0b1010_1000, 0b0001_0011 ], i: 1, l: 5 => 0b01110
-func Extract(bytes []byte, index, length byte) byte {
-	return extractSimple(bytes, index*length, length)
+// It needs to be verified before that (index+1)*length <= len(bytes)*8 either by convention or by testing.
+func ExtractIndex(bytes []byte, index, length byte) byte {
+	return ExtractVector(bytes, index*length, length)
 }
 
-// extractSimple does the actual shift and length calculation described in Extract without any security checks
-func extractSimple(bytes []byte, shift, length byte) byte {
+// ExtractVector return some bits form a byte array, being able to go across byte boundaries. The slice is interpreted
+// in ascending order. The shift is interpreted as the total number of bits before the value and the length is the
+// amount of bits to read and to return.
+//
+// The maximum length allowed is 7. As 8 bit would be simply accessing the byte slice and more than 8 byte
+// is not supported.
+//
+// It needs to be verified before that shift+length <= len(bytes)*8 either by convention or by testing.
+func ExtractVector(bytes []byte, shift, length byte) byte {
 	var (
 		byteStart = shift / 8
 		bitStart  = shift % 8

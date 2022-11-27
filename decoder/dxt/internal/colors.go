@@ -24,9 +24,9 @@ func InterpolateColors(v0, v1 []byte) (cv [4]color.NRGBA) {
 
 func c565toRGBA(b0 []byte) color.NRGBA {
 	return color.NRGBA{
-		R: byte(math.Round(float64(extractSimple(b0, 11, 5)) * (255 / 31))),
-		G: byte(math.Round(float64(extractSimple(b0, 5, 6)) * (255 / 63))),
-		B: byte(math.Round(float64(extractSimple(b0, 0, 5)) * (255 / 31))),
+		R: byte(math.Round(float64(ExtractVector(b0, 11, 5)) * (255 / 31))),
+		G: byte(math.Round(float64(ExtractVector(b0, 5, 6)) * (255 / 63))),
+		B: byte(math.Round(float64(ExtractVector(b0, 0, 5)) * (255 / 31))),
 		A: 255,
 	}
 }

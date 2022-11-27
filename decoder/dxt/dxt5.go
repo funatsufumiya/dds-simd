@@ -22,7 +22,7 @@ func (d *dxt5) DecodeBlock(buffer []byte) {
 }
 
 func (d *dxt5) Pixel(index byte) color.Color {
-	alphaIndex := Extract(d.alphaIndices, index, 3)
+	alphaIndex := ExtractIndex(d.alphaIndices, index, 3)
 	alpha := d.alphaValues[alphaIndex]
 	return d.PixelAlpha(index, alpha)
 }
