@@ -1,7 +1,7 @@
 package dxt
 
 import (
-	. "dds/decoder/dxt/internal"
+	. "github.com/robroyd/dds/decoder/dxt/internal"
 	"image/color"
 )
 

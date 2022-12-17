@@ -3,8 +3,8 @@
 package dxt
 
 import (
-	. "dds/decoder/dxt/internal"
 	"fmt"
+	. "github.com/robroyd/dds/decoder/dxt/internal"
 	"image"
 	"image/color"
 	"image/draw"

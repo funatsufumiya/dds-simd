@@ -1,7 +1,7 @@
 package uncompressed
 
 import (
-	"dds/header"
+	"github.com/robroyd/dds/header"
 	"image"
 	"io"
 )

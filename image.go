@@ -2,10 +2,10 @@
 package dds
 
 import (
-	"dds/decoder"
-	"dds/header"
 	"errors"
 	"fmt"
+	"github.com/robroyd/dds/decoder"
+	"github.com/robroyd/dds/header"
 	"image"
 	"image/color"
 	"io"

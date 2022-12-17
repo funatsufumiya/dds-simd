@@ -1,10 +1,10 @@
 package decoder
 
 import (
-	"dds/decoder/dxt"
-	"dds/decoder/uncompressed"
-	"dds/header"
 	"fmt"
+	"github.com/robroyd/dds/decoder/dxt"
+	"github.com/robroyd/dds/decoder/uncompressed"
+	"github.com/robroyd/dds/header"
 	"image"
 	"io"
 )

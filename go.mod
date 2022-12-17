@@ -1,4 +1,4 @@
-module dds
+module  github.com/robroyd/dds
 
 go 1.19
 
