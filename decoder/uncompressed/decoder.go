@@ -24,7 +24,7 @@ func (d *Decoder) Decode(r io.Reader) (image.Image, error) {
 		return rgba, nil
 	}
 
-	switch header.DDPFf(d.flags.F) {
+	switch d.flags.F {
 	case header.DDPFAlphaPixels | header.DDPFRGB:
 		for y := 0; y < d.bounds.Y; y++ {
 			p := rgba.Pix[y*rgba.Stride : y*rgba.Stride+d.bounds.X*4]

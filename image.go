@@ -19,7 +19,7 @@ func init() {
 var ErrUnsupported = errors.New("unsupported texture format")
 
 func DecodeConfig(r io.Reader) (image.Config, error) {
-	h, err := header.New().Read(r)
+	h, err := header.Read(r)
 	if err != nil {
 		return image.Config{}, err
 	}
@@ -63,7 +63,7 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 }
 
 func Decode(r io.Reader) (image.Image, error) {
-	h, err := header.New().Read(r)
+	h, err := header.Read(r)
 	if err != nil {
 		return nil, err
 	}

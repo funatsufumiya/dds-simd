@@ -8,9 +8,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	ds := New()
-	assert.NotNil(t, ds)
-	assert.EqualValues(t, sizeDDTF, binary.Size(Deserializer{}))
+	assert.EqualValues(t, sizeDDTF, binary.Size(deserializer{}))
 }
 
 func TestDeserializer_Read(t *testing.T) {
@@ -54,7 +52,7 @@ func TestDeserializer_Read(t *testing.T) {
 	}
 
 	rd := bytes.NewReader(data[:])
-	h, err := New().Read(rd)
+	h, err := Read(rd)
 	assert.NoError(t, err)
 	assert.Equal(t, expected, h)
 }
