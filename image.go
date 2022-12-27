@@ -32,22 +32,38 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 
 	switch pf, s := h.PixelFlags, h.RgbBitCount; {
 	case pf.Is(header.DDPFFourCC):
-		c.ColorModel = color.NRGBAModel
+		switch h.FourCCString {
+		case header.FourCCDX10:
+			err = ErrUnsupported
+		case "DXT1", "DXT3", "DXT5":
+			c.ColorModel = color.NRGBAModel
+		default:
+			err = fmt.Errorf("%w; is %s", ErrUnsupported, h.FourCCString)
+		}
+
 	case pf.Has(header.DDPFRGB): // because alpha is implicit
+		err = ErrUnsupported
+
 		if s <= 32 {
 			c.ColorModel = color.NRGBAModel
 		} else {
 			c.ColorModel = color.NRGBA64Model
 		}
 	case pf.Is(header.DDPFYUV):
+		err = ErrUnsupported
+
 		c.ColorModel = color.NYCbCrAModel
 	case pf.Is(header.DDPFLuminance):
+		err = ErrUnsupported
+
 		if s <= 8 {
 			c.ColorModel = color.GrayModel
 		} else {
 			c.ColorModel = color.Gray16Model
 		}
 	case pf.Is(header.DDPFAlpha):
+		err = ErrUnsupported
+
 		if s <= 8 {
 			c.ColorModel = color.AlphaModel
 		} else {
@@ -55,6 +71,12 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 		}
 	case pf.Is(header.DDPFLuminance | header.DDPFAlphaPixels):
 		err = ErrUnsupported
+
+		if s <= 32 {
+			c.ColorModel = color.NRGBAModel // R__A
+		} else {
+			c.ColorModel = color.NRGBA64Model // R__A
+		}
 	default:
 		err = fmt.Errorf("unrecognized image format: pf.flags: %x", pf)
 	}
