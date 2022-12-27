@@ -9,7 +9,6 @@ import (
 	"image/color"
 	"image/draw"
 	"io"
-	"time"
 )
 
 type (
@@ -44,9 +43,6 @@ func New(fourCC string, width, height int) (*Decoder, error) {
 }
 
 func (d *Decoder) Decode(r io.Reader) (image.Image, error) {
-	now := time.Now()
-	defer func() { fmt.Printf("%v\n", time.Since(now)) }()
-
 	bounds := image.Rectangle{Max: d.bounds}
 	rgba := d.New(bounds)
 	if bounds.Empty() {
