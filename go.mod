@@ -1,4 +1,4 @@
-module github.com/robroyd/dds
+module github.com/funatsufumiya/dds-simd
 
 go 1.23.1
 

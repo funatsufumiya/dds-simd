@@ -2,11 +2,12 @@ package decoder
 
 import (
 	"fmt"
-	"github.com/robroyd/dds/decoder/dxt"
-	"github.com/robroyd/dds/decoder/uncompressed"
-	"github.com/robroyd/dds/header"
 	"image"
 	"io"
+
+	"github.com/funatsufumiya/dds-simd/decoder/dxt"
+	"github.com/funatsufumiya/dds-simd/decoder/uncompressed"
+	"github.com/funatsufumiya/dds-simd/header"
 )
 
 // Decoder is the default interface for actual decoding operations.

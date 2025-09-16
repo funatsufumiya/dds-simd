@@ -4,11 +4,12 @@ package dds
 import (
 	"errors"
 	"fmt"
-	"github.com/robroyd/dds/decoder"
-	"github.com/robroyd/dds/header"
 	"image"
 	"image/color"
 	"io"
+
+	"github.com/funatsufumiya/dds-simd/decoder"
+	"github.com/funatsufumiya/dds-simd/header"
 )
 
 // init registers the decoder for the dds image format

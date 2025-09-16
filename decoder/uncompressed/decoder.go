@@ -1,9 +1,10 @@
 package uncompressed
 
 import (
-	"github.com/robroyd/dds/header"
 	"image"
 	"io"
+
+	"github.com/funatsufumiya/dds-simd/header"
 )
 
 type Decoder struct {

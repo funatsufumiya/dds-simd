@@ -9,7 +9,7 @@ import (
 	"image/draw"
 	"io"
 
-	. "github.com/robroyd/dds/decoder/dxt/internal"
+	. "github.com/funatsufumiya/dds-simd/decoder/dxt/internal"
 )
 
 type (

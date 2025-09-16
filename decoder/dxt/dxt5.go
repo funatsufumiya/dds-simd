@@ -3,7 +3,7 @@ package dxt
 import (
 	"image/color"
 
-	. "github.com/robroyd/dds/decoder/dxt/internal"
+	. "github.com/funatsufumiya/dds-simd/decoder/dxt/internal"
 )
 
 type dxt5 struct {
