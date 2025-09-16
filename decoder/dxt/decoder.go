@@ -4,11 +4,12 @@ package dxt
 
 import (
 	"fmt"
-	. "github.com/robroyd/dds/decoder/dxt/internal"
 	"image"
 	"image/color"
 	"image/draw"
 	"io"
+
+	. "github.com/robroyd/dds/decoder/dxt/internal"
 )
 
 type (
@@ -22,6 +23,7 @@ type (
 		BlockSize() byte
 		DecodeBlock(buffer []byte)
 		Pixel(index byte) color.Color
+		PixelBlock() [16]color.Color
 	}
 )
 
@@ -58,11 +60,13 @@ func (d *Decoder) Decode(r io.Reader) (image.Image, error) {
 			}
 
 			d.DecodeBlock(buffer)
-			for y := 3; y >= 0; y-- {
+			blockColors := d.PixelBlock()
+			for y := 0; y < 4; y++ {
 				for x := 0; x < 4; x++ {
-					pxIndex := byte(x + y*4)
-					pxColor := d.Pixel(pxIndex)
-					rgba.Set(w+x, h+y, pxColor)
+					pxIndex := x + y*4
+					if w+x < d.bounds.X && h+y < d.bounds.Y {
+						rgba.Set(w+x, h+y, blockColors[pxIndex])
+					}
 				}
 			}
 		}

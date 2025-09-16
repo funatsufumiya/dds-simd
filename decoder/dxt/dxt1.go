@@ -1,8 +1,9 @@
 package dxt
 
 import (
-	. "github.com/robroyd/dds/decoder/dxt/internal"
 	"image/color"
+
+	. "github.com/robroyd/dds/decoder/dxt/internal"
 )
 
 type dxt1 struct {
@@ -19,4 +20,13 @@ func (d *dxt1) DecodeBlock(buffer []byte) {
 
 func (d *dxt1) Pixel(index byte) color.Color {
 	return d.PixelColor(index)
+}
+
+// PixelBlock returns a 4x4 block of colors (16 pixels) for the current block.
+func (d *dxt1) PixelBlock() [16]color.Color {
+	var out [16]color.Color
+	for i := 0; i < 16; i++ {
+		out[i] = d.Pixel(byte(i))
+	}
+	return out
 }
