@@ -44,32 +44,45 @@ func New(fourCC string, width, height int) (*Decoder, error) {
 	return decoder, nil
 }
 
+// Decode decodes from r and returns a new image.Image as before.
 func (d *Decoder) Decode(r io.Reader) (image.Image, error) {
-	bounds := image.Rectangle{Max: d.bounds}
-	rgba := d.New(bounds)
-	if bounds.Empty() {
-		return rgba, nil
-	}
+       bounds := image.Rectangle{Max: d.bounds}
+       img := d.New(bounds)
+       if bounds.Empty() {
+	       return img, nil
+       }
+       err := d.DecodeTo(r, img)
+       if err != nil {
+	       return nil, err
+       }
+       return img, nil
+}
 
-	rd := NewReader(r, d.BlockSize())
-	for h := 0; h < d.bounds.Y; h += 4 {
-		for w := 0; w < d.bounds.X; w += 4 {
-			buffer, err := rd.Read()
-			if err != nil {
-				return nil, err
-			}
-
-			d.DecodeBlock(buffer)
-			blockColors := d.PixelBlock()
-			for y := 0; y < 4; y++ {
-				for x := 0; x < 4; x++ {
-					pxIndex := x + y*4
-					if w+x < d.bounds.X && h+y < d.bounds.Y {
-						rgba.Set(w+x, h+y, blockColors[pxIndex])
-					}
-				}
-			}
-		}
-	}
-	return rgba, nil
+// DecodeTo decodes from r and writes the result into dst (must be at least bounds size).
+// This allows memory reuse and avoids unnecessary allocations.
+func (d *Decoder) DecodeTo(r io.Reader, dst draw.Image) error {
+       bounds := image.Rectangle{Max: d.bounds}
+       if bounds.Empty() {
+	       return nil
+       }
+       rd := NewReader(r, d.BlockSize())
+       for h := 0; h < d.bounds.Y; h += 4 {
+	       for w := 0; w < d.bounds.X; w += 4 {
+		       buffer, err := rd.Read()
+		       if err != nil {
+			       return err
+		       }
+		       d.DecodeBlock(buffer)
+		       blockColors := d.PixelBlock()
+		       for y := 0; y < 4; y++ {
+			       for x := 0; x < 4; x++ {
+				       pxIndex := x + y*4
+				       if w+x < d.bounds.X && h+y < d.bounds.Y {
+					       dst.Set(w+x, h+y, blockColors[pxIndex])
+				       }
+			       }
+		       }
+	       }
+       }
+       return nil
 }
